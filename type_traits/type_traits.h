@@ -1,5 +1,8 @@
 
-#include <type_traits>
+#ifndef __TYPE_TRAITS__TYPE_TRAITS__H
+#define __TYPE_TRAITS__TYPE_TRAITS__H
+#include <cstddef>
+#include <tuple>
 namespace my_type_traits {
 
 template<typename _T, _T __value>
@@ -13,6 +16,9 @@ struct integral_constant {
 
 using true_type = integral_constant<bool, true>;
 using false_type = integral_constant<bool, false>;
+
+template<typename ...Args>
+constexpr bool always_false = false; 
 
 template<typename _T1, typename _T2>
 struct is_same_type: public false_type {
@@ -149,5 +155,65 @@ struct disjunction<true_type, Args...>: public true_type {};
 template<>
 struct disjunction<false_type>:public false_type {};
 
+// make seq begin
+template <int ...__seq>
+struct integer_seq {};
+
+template<int N, int ...__seq>
+struct make_seq_index : public make_seq_index< N-1, N-1, __seq...>{};
+
+template<int ...__seq>
+struct make_seq_index<0, __seq...>:public integer_seq<__seq...> {};
+
+
+// tuple begin
+template<typename ...Args>
+struct tuple;
+
+template<>
+struct tuple<> {};
+
+template<typename Head, typename ...Args>
+struct tuple<Head, Args...>:public tuple<Args...> {
+    using elem_type = Head;
+    using base_type = tuple<Args...>;
+    tuple(Head elem, Args ...args):tuple<Args...>(args...), elem_(elem){}
+    Head elem_;
+};
+
+template<typename ...Args>
+struct tuple_size;
+
+template<typename ...Args>
+struct tuple_size<tuple<Args...>>:public integral_constant<std::size_t, sizeof...(Args)> {};
+
+template<typename ...Args>
+constexpr std::size_t tuple_size_v = tuple_size<tuple<Args...>>::value;
+
+template<int Index, typename ...Args>
+struct tuple_element;
+
+template<int Index>
+struct tuple_element<Index, tuple<>> {
+    static_assert(always_false<false_type>, "index exceed");
+};
+
+template<int Index, typename Head, typename ...Args>
+struct tuple_element<Index, tuple<Head, Args...>>:public tuple_element<Index-1, tuple<Args...>>{};
+
+template<typename Head, typename ...Args>
+struct tuple_element<0, tuple<Head, Args...>> {
+    using elem_type = Head;
+    using base_type = tuple<Head, Args...>;
+};
+
+template<int Index, typename ...Args>
+typename tuple_element<Index, tuple<Args...>>::elem_type get(tuple<Args...> a) {
+    using base_type = typename tuple_element<Index, tuple<Args...>>::base_type;
+    return static_cast<base_type>(a).elem_;
+}
+
 
 };
+
+#endif

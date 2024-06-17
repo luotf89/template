@@ -4,30 +4,11 @@
 #include <utility>
 #include "type_traits.h"
 #include <tuple>
+#include "test.h"
 
-template<int N>
-struct fib {
-    constexpr static int value = fib<N-1>::value + fib<N-2>::value;
-};
+using namespace my_type_traits;
 
-template<>
-struct fib<0> {
-    constexpr static int value = 1;
-};
 
-template<>
-struct fib<1> {
-    constexpr static int value = 1;
-};
-
-template <int ...__seq>
-struct integer_seq {};
-
-template<int N, int ...__seq>
-struct make_seq_index : public make_seq_index< N-1, N-1, __seq...>{};
-
-template<int ...__seq>
-struct make_seq_index<0, __seq...>:public integer_seq<__seq...> {};
 
 template<typename ...Args, int ...__seq>
 void tuple_travel(std::tuple<Args...> a, integer_seq<__seq...>) {
@@ -53,51 +34,50 @@ class C {
     int f;
 };
 
-template<typename ...Args>
-struct my_tuple;
+// template<typename ...Args>
+// struct my_tuple;
 
-template<>
-struct my_tuple<>{};
+// template<>
+// struct my_tuple<>{};
 
 
-template<typename First, typename ...Args>
-struct my_tuple<First, Args...>: public my_tuple<Args...> {
-    my_tuple<First, Args...>(First elem, Args... args):elem_(elem), my_tuple<Args...>(args...){}
-    First elem_;
-};
+// template<typename First, typename ...Args>
+// struct my_tuple<First, Args...>: public my_tuple<Args...> {
+//     my_tuple<First, Args...>(First elem, Args... args):elem_(elem), my_tuple<Args...>(args...){}
+//     First elem_;
+// };
 
 // template<>
 // class my_tuple<> {};
 
 
-template <int Index, typename ...Args>
-struct gettype;
+// template <int Index, typename ...Args>
+// struct gettype;
 
-template <typename Head, typename ...Args>
-struct gettype<0, Head, Args...>{
-    using type = Head;
-};
+// template <typename Head, typename ...Args>
+// struct gettype<0, Head, Args...>{
+//     using type = Head;
+// };
 
-template <int Index, typename Head, typename ...Args>
-struct gettype<Index, Head, Args...>: gettype<Index-1, Args...>{};
-
-
-
-
-template <int Index, typename Head, typename ...Args>
-typename gettype<Index, Head, Args...>::type get(my_tuple<Head, Args...> tuple) {
-    if constexpr (Index <= sizeof...(Args)) {
-        if constexpr  (Index == 0) {
-            return tuple.elem_;
-        }
-        return get<Index-1, Args...>(tuple);
-    }
-    return 0;
-}
+// template <int Index, typename Head, typename ...Args>
+// struct gettype<Index, Head, Args...>: gettype<Index-1, Args...>{};
 
 
 
-using namespace my_type_traits;
+
+// template <int Index, typename Head, typename ...Args>
+// typename gettype<Index, Head, Args...>::type get(my_tuple<Head, Args...> tuple) {
+//     if constexpr (Index <= sizeof...(Args)) {
+//         if constexpr  (Index == 0) {
+//             return tuple.elem_;
+//         }
+//         return get<Index-1, Args...>(tuple);
+//     }
+//     return 0;
+// }
+
+
+
 
 int main () {
     // std::cout << "true type: " << true_type::value << std::endl;
@@ -146,7 +126,11 @@ int main () {
     // std::cout << hasMemF<B>::value << std::endl;
     // std::cout << hasMemF<C>::value << std::endl;
 
-    my_tuple<int, float, double> a{2, 3, 5};
-    std::cout << get<2>(a) << std::endl;
+    // my_tuple<int, float, double> a{2, 3, 5};
+    // std::cout << get<2>(a) << std::endl;
+
+    test0();
+    test1();
+    test2();
 
 }
