@@ -1,6 +1,9 @@
 #include <cassert>
+#include <chrono>
+#include <cstddef>
 #include <iostream>
 #include <tuple>
+#include <type_traits>
 #include "type_traits.h"
 #include "test.h"
 
@@ -41,9 +44,25 @@ void test1() {
     tuple_travel(tp1, make_seq_index<std::tuple_size_v<decltype(tp1)>>{});
 }
 
+
+
+
 void test2() {
     tuple<int, float, double> tp{1, 2, 3};
     std::cout << get<0>(tp) << std::endl;
     std::cout << get<1>(tp) << std::endl;
     std::cout << get<2>(tp) << std::endl;
+
+    std::cout << tuple_size_v<decltype(tp)> <<std::endl;
+
+    apply([](int a, float b, double c) {
+        std::cout << "a: " << a << std::endl;
+        std::cout << "b: " << b << std::endl;
+        std::cout << "c: " << c << std::endl;
+    }, tp);
+
+    std::cout << __is_class(decltype(tp)) << std::endl;
+    std::cout << __is_final(decltype(tp)) << std::endl;
+
+
 }

@@ -3,6 +3,8 @@
 #define __TYPE_TRAITS__TYPE_TRAITS__H
 #include <cstddef>
 #include <tuple>
+#include <type_traits>
+#include <utility>
 namespace my_type_traits {
 
 template<typename _T, _T __value>
@@ -187,8 +189,8 @@ struct tuple_size;
 template<typename ...Args>
 struct tuple_size<tuple<Args...>>:public integral_constant<std::size_t, sizeof...(Args)> {};
 
-template<typename ...Args>
-constexpr std::size_t tuple_size_v = tuple_size<tuple<Args...>>::value;
+template<typename _T>
+constexpr std::size_t tuple_size_v = tuple_size<_T>::value;
 
 template<int Index, typename ...Args>
 struct tuple_element;
@@ -211,6 +213,16 @@ template<int Index, typename ...Args>
 typename tuple_element<Index, tuple<Args...>>::elem_type get(tuple<Args...> a) {
     using base_type = typename tuple_element<Index, tuple<Args...>>::base_type;
     return static_cast<base_type>(a).elem_;
+}
+
+template<typename Func, typename Tuple, int ...Seq>
+constexpr decltype(auto) apply_impl(Func&& func, Tuple&& tp, integer_seq<Seq...> seq) {
+    return func(get<Seq>(tp)...);
+}
+
+template<typename Func, typename Tuple>
+constexpr decltype(auto) apply(Func&& func, Tuple&& tp) {
+    return apply_impl(std::forward<Func>(func), std::forward<Tuple>(tp), make_seq_index<tuple_size_v<remove_cvr_t<Tuple>>>{});
 }
 
 
